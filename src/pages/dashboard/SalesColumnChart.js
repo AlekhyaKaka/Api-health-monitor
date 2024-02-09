@@ -22,6 +22,7 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
   const primaryMain = theme.palette.primary.main;
   const success = theme.palette.success.main;
   const error = theme.palette.error.main;
+  const warning = theme.palette.warning.main;
   const filteredData = apiTestJson?.filter((each) => each.api_method === method && each.url === apiUrl);
 
   const uniqueCountries = [...new Set(filteredData?.map((each) => each.location))];
@@ -44,83 +45,80 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
     return calculateAveragePercentage(responseSizes, maxResponseSize);
   });
 
-  const [options, setOptions] = useState({
-    chart: {
-      height: 350,
-      type: 'line',
-      stacked: false
-    },
-    dataLabels: {
-      enabled: false
-    },
-    colors: [primaryMain, success, error],
-    stroke: {
-      width: [4, 4, 4]
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: '10%'
-      }
-    },
-    xaxis: {
-      categories: uniqueCountries
-    },
-    yaxis: [
-      {
-        seriesName: 'Number Of APIs',
-        axisTicks: {
-          show: true
-        },
-        axisBorder: {
-          show: true
-        },
-        title: {
-          text: 'Number Of APIs'
-        }
-      },
-      {
-        seriesName: 'Number Of APIs',
-        show: false
-      },
-      {
-        seriesName: 'Number Of APIs',
-        show: false
-      },
-      {
-        opposite: true,
-        seriesName: 'Response Size',
-        axisTicks: {
-          show: true
-        },
-        axisBorder: {
-          show: true
-        },
-        title: {
-          text: 'Average Response Size (%)'
-        }
-      }
-    ],
-    tooltip: {
-      shared: false,
-      intersect: true,
-      x: {
-        show: false
-      }
-    },
-    legend: {
-      horizontalAlign: 'left',
-      offsetX: 40
-    }
-  });
+  const [options, setOptions] = useState(null);
 
   useEffect(() => {
-    setOptions((prevState) => ({
-      ...prevState,
-      colors: [primaryMain, success, error]
-    }));
-  }, [primaryMain, success, error]);
+    setOptions({
+      chart: {
+        height: 350,
+        type: 'line',
+        stacked: false
+      },
+      dataLabels: {
+        enabled: false
+      },
+      colors: [primaryMain, success, error, warning],
+      stroke: {
+        width: [4, 4, 4]
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: '20%'
+        }
+      },
+      xaxis: {
+        categories: uniqueCountries
+      },
+      yaxis: [
+        {
+          seriesName: 'Number Of APIs',
+          axisTicks: {
+            show: true
+          },
+          axisBorder: {
+            show: true
+          },
+          title: {
+            text: 'Number Of APIs'
+          }
+        },
+        {
+          seriesName: 'Number Of APIs',
+          show: false
+        },
+        {
+          seriesName: 'Number Of APIs',
+          show: false
+        },
+        {
+          opposite: true,
+          seriesName: 'Response Size',
+          axisTicks: {
+            show: true
+          },
+          axisBorder: {
+            show: true
+          },
+          title: {
+            text: 'Average Response Size (%)'
+          }
+        }
+      ],
+      tooltip: {
+        shared: false,
+        intersect: true,
+        x: {
+          show: false
+        }
+      },
+      legend: {
+        horizontalAlign: 'left',
+        offsetX: 40
+      }
+    });
+  }, [primaryMain, success, error, warning, apiUrl, method]);
 
-  return (
+  return options ? (
     <ReactApexChart
       series={[
         { name: 'Number Of APIs', type: 'column', data: apiHitCountBasedOnCountry },
@@ -135,6 +133,8 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
       options={options}
       height={430}
     />
+  ) : (
+    ''
   );
 };
 
