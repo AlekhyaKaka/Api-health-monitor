@@ -1,147 +1,140 @@
-import { useEffect, useState } from 'react';
-
-// material-ui
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-
-// third-party
 import ReactApexChart from 'react-apexcharts';
+import apiTestJson from '../../../src/APITestJson.json';
 
-// chart options
-const columnChartOptions = {
-  chart: {
-    type: 'bar',
-    height: 430,
-    toolbar: {
-      show: false
-    }
-  },
-  plotOptions: {
-    bar: {
-      columnWidth: '30%',
-      borderRadius: 4
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    show: true,
-    width: 8,
-    colors: ['transparent']
-  },
-  xaxis: {
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  },
-  yaxis: {
-    title: {
-      text: '$ (thousands)'
-    }
-  },
-  fill: {
-    opacity: 1
-  },
-  tooltip: {
-    y: {
-      formatter(val) {
-        return `$ ${val} thousands`;
+function calculateAveragePercentage(numbers, maxResponseSize) {
+  if (numbers.length === 0) {
+    return 0; // Return 0 for empty arrays
+  }
+
+  const sum = numbers.reduce((acc, curr) => acc + curr, 0);
+  const average = sum / numbers.length;
+
+  // Calculate percentage
+  const percentage = (average / maxResponseSize) * 100;
+
+  return Math.round(percentage);
+}
+
+const SalesColumnChart = ({ method, apiUrl = '' }) => {
+  const theme = useTheme();
+  const primaryMain = theme.palette.primary.main;
+  const success = theme.palette.success.main;
+  const error = theme.palette.error.main;
+  const filteredData = apiTestJson?.filter((each) => each.api_method === method && each.url === apiUrl);
+
+  const uniqueCountries = [...new Set(filteredData?.map((each) => each.location))];
+
+  const getCountByStatusAndCountry = (status) =>
+    uniqueCountries.map((location) => filteredData.filter((each) => each.location === location && each.status === status).length);
+
+  const apiHitCountBasedOnCountry = uniqueCountries.map((location) => filteredData.filter((each) => each.location === location).length);
+
+  const apiPassedCountBasedOnCountry = getCountByStatusAndCountry('pass');
+
+  const apiFailedCountBasedOnCountry = getCountByStatusAndCountry('fail');
+
+  const avgResponseSize = uniqueCountries.map((location) => {
+    const responseSizes = filteredData.filter((each) => each.location === location).map((each) => each.response_size);
+
+    // Assuming maxResponseSize represents the maximum possible response size
+    const maxResponseSize = 1000; // Example value, replace with the actual maximum response size
+
+    return calculateAveragePercentage(responseSizes, maxResponseSize);
+  });
+
+  const [options, setOptions] = useState({
+    chart: {
+      height: 350,
+      type: 'line',
+      stacked: false
+    },
+    dataLabels: {
+      enabled: false
+    },
+    colors: [primaryMain, success, error],
+    stroke: {
+      width: [4, 4, 4]
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: '10%'
       }
-    }
-  },
-  legend: {
-    show: true,
-    fontFamily: `'Public Sans', sans-serif`,
-    offsetX: 10,
-    offsetY: 10,
-    labels: {
-      useSeriesColors: false
     },
-    markers: {
-      width: 16,
-      height: 16,
-      radius: '50%',
-      offsexX: 2,
-      offsexY: 2
+    xaxis: {
+      categories: uniqueCountries
     },
-    itemMargin: {
-      horizontal: 15,
-      vertical: 50
-    }
-  },
-  responsive: [
-    {
-      breakpoint: 600,
-      options: {
-        yaxis: {
-          show: false
+    yaxis: [
+      {
+        seriesName: 'Number Of APIs',
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        title: {
+          text: 'Number Of APIs'
+        }
+      },
+      {
+        seriesName: 'Number Of APIs',
+        show: false
+      },
+      {
+        seriesName: 'Number Of APIs',
+        show: false
+      },
+      {
+        opposite: true,
+        seriesName: 'Response Size',
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        title: {
+          text: 'Average Response Size (%)'
         }
       }
-    }
-  ]
-};
-
-// ==============================|| SALES COLUMN CHART ||============================== //
-
-const SalesColumnChart = () => {
-  const theme = useTheme();
-
-  const { primary, secondary } = theme.palette.text;
-  const line = theme.palette.divider;
-
-  const warning = theme.palette.warning.main;
-  const primaryMain = theme.palette.primary.main;
-  const successDark = theme.palette.success.dark;
-
-  const [series] = useState([
-    {
-      name: 'Net Profit',
-      data: [180, 90, 135, 114, 120, 145]
+    ],
+    tooltip: {
+      shared: false,
+      intersect: true,
+      x: {
+        show: false
+      }
     },
-    {
-      name: 'Revenue',
-      data: [120, 45, 78, 150, 168, 99]
+    legend: {
+      horizontalAlign: 'left',
+      offsetX: 40
     }
-  ]);
-
-  const [options, setOptions] = useState(columnChartOptions);
+  });
 
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [warning, primaryMain],
-      xaxis: {
-        labels: {
-          style: {
-            colors: [secondary, secondary, secondary, secondary, secondary, secondary]
-          }
-        }
-      },
-      yaxis: {
-        labels: {
-          style: {
-            colors: [secondary]
-          }
-        }
-      },
-      grid: {
-        borderColor: line
-      },
-      tooltip: {
-        theme: 'light'
-      },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        labels: {
-          colors: 'grey.500'
-        }
-      }
+      colors: [primaryMain, success, error]
     }));
-  }, [primary, secondary, line, warning, primaryMain, successDark]);
+  }, [primaryMain, success, error]);
 
   return (
-    <div id="chart">
-      <ReactApexChart options={options} series={series} type="bar" height={430} />
-    </div>
+    <ReactApexChart
+      series={[
+        { name: 'Number Of APIs', type: 'column', data: apiHitCountBasedOnCountry },
+        { name: 'Passed', type: 'column', data: apiPassedCountBasedOnCountry },
+        { name: 'Failed', type: 'column', data: apiFailedCountBasedOnCountry },
+        {
+          name: 'Response Size',
+          type: 'line',
+          data: avgResponseSize
+        }
+      ]}
+      options={options}
+      height={430}
+    />
   );
 };
 

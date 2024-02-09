@@ -26,6 +26,7 @@ import ReportAreaChart from './ReportAreaChart';
 import SalesColumnChart from './SalesColumnChart';
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
+import apiTestJson from '../../../src/APITestJson.json';
 
 // assets
 import { GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
@@ -34,14 +35,12 @@ import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
 import avatar4 from 'assets/images/users/avatar-4.png';
 
-// avatar style
 const avatarSX = {
   width: 36,
   height: 36,
   fontSize: '1rem'
 };
 
-// action style
 const actionSX = {
   mt: 0.75,
   ml: 1,
@@ -51,31 +50,36 @@ const actionSX = {
   transform: 'none'
 };
 
-// sales report status
 const status = [
   {
-    value: 'today',
-    label: 'Today'
+    value: 'GET',
+    label: 'GET'
   },
   {
-    value: 'month',
-    label: 'This Month'
+    value: 'POST',
+    label: 'POST'
   },
   {
-    value: 'year',
-    label: 'This Year'
+    value: 'PUT',
+    label: 'PUT'
+  },
+  {
+    value: 'DELETE',
+    label: 'DELETE'
+  },
+  {
+    value: 'PATCH',
+    label: 'PATCH'
   }
 ];
 
-// ==============================|| DASHBOARD - DEFAULT ||============================== //
-
 const DashboardDefault = () => {
-  const [value, setValue] = useState('today');
+  const [method, setMethod] = useState('GET');
+  const [apiUrl, setApiUrl] = useState('');
   const [slot, setSlot] = useState('week');
-
+  const apisList = [...new Set(apiTestJson?.map((each) => each?.url))];
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      {/* row 1 */}
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
@@ -166,20 +170,6 @@ const DashboardDefault = () => {
           <Grid item />
         </Grid>
         <MainCard sx={{ mt: 2 }} content={false}>
-          <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
-            <ListItemButton divider>
-              <ListItemText primary="Company Finance Growth" />
-              <Typography variant="h5">+45.14%</Typography>
-            </ListItemButton>
-            <ListItemButton divider>
-              <ListItemText primary="Company Expenses Ratio" />
-              <Typography variant="h5">0.58%</Typography>
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemText primary="Business Risk Cases" />
-              <Typography variant="h5">Low</Typography>
-            </ListItemButton>
-          </List>
           <ReportAreaChart />
         </MainCard>
       </Grid>
@@ -187,17 +177,19 @@ const DashboardDefault = () => {
       {/* row 4 */}
       <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h5">Sales Report</Typography>
+          <Grid item xs={4}>
+            <Typography variant="h5">Metrics</Typography>
           </Grid>
-          <Grid item>
+          <Grid item xs={2}>
             <TextField
-              id="standard-select-currency"
               size="small"
               select
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' } }}
+              value={method}
+              fullWidth
+              minWidth={200}
+              label="Select Method"
+              onChange={(e) => setMethod(e.target.value)}
+              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' }, minWidth: 110 }}
             >
               {status.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -206,15 +198,32 @@ const DashboardDefault = () => {
               ))}
             </TextField>
           </Grid>
+          <Grid item xs={6} pl={2}>
+            <TextField
+              size="small"
+              select
+              value={apiUrl}
+              fullWidth
+              minWidth={200}
+              label="Select URL"
+              onChange={(e) => setApiUrl(e.target.value)}
+              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' }, minWidth: 110 }}
+            >
+              {apisList.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
         </Grid>
         <MainCard sx={{ mt: 1.75 }}>
-          <Stack spacing={1.5} sx={{ mb: -12 }}>
+          <Stack spacing={1.5} sx={{}}>
             <Typography variant="h6" color="secondary">
-              Net Profit
+              Total Users :<Typography component="span">??</Typography>
             </Typography>
-            <Typography variant="h4">$1560</Typography>
           </Stack>
-          <SalesColumnChart />
+          <SalesColumnChart method={method} apiUrl={apiUrl} />
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
