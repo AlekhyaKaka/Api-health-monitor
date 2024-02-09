@@ -1,92 +1,59 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 // material-ui
 import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 // third-party
-import NumberFormat from 'react-number-format';
 
 // project import
 import Dot from 'components/@extended/Dot';
-
-function createData(trackingNo, name, fat, carbs, protein) {
-  return { trackingNo, name, fat, carbs, protein };
-}
-
-const rows = [
-  createData(84564564, 'Camera Lens', 40, 2, 40570),
-  createData(98764564, 'Laptop', 300, 0, 180139),
-  createData(98756325, 'Mobile', 355, 1, 90989),
-  createData(98652366, 'Handset', 50, 1, 10239),
-  createData(13286564, 'Computer Accessories', 100, 1, 83348),
-  createData(86739658, 'TV', 99, 0, 410780),
-  createData(13256498, 'Keyboard', 125, 2, 70999),
-  createData(98753263, 'Mouse', 89, 2, 10570),
-  createData(98753275, 'Desktop', 185, 1, 98063),
-  createData(98753291, 'Chair', 100, 0, 14001)
-];
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+import apiTestJson from '../../../src/APITestJson.json';
 
 // ==============================|| ORDER TABLE - HEADER CELL ||============================== //
 
 const headCells = [
   {
-    id: 'trackingNo',
+    id: 'sNo',
     align: 'left',
     disablePadding: false,
-    label: 'Tracking No.'
+    label: 'S.No'
   },
   {
-    id: 'name',
+    id: 'url',
     align: 'left',
     disablePadding: true,
-    label: 'Product Name'
+    label: 'URL'
   },
   {
-    id: 'fat',
+    id: 'passCount',
     align: 'right',
     disablePadding: false,
-    label: 'Total Order'
+    label: (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography>Pass Count</Typography>
+        <CheckCircleOutlined style={{ color: 'green' }} />
+      </Box>
+    )
   },
   {
-    id: 'carbs',
+    id: 'failCount',
     align: 'left',
     disablePadding: false,
 
-    label: 'Status'
+    label: (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography>Fail Count</Typography>
+        <CloseCircleOutlined style={{ color: 'red' }} />
+      </Box>
+    )
   },
   {
-    id: 'protein',
-    align: 'right',
+    id: 'methods',
+    align: 'center',
     disablePadding: false,
-    label: 'Total Amount'
+    label: 'Methods'
   }
 ];
 
@@ -161,6 +128,46 @@ export default function OrderTable() {
 
   const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
+  // Step 1: Remove duplicates from URLs
+  const uniqueUrls = [...new Set(apiTestJson?.map((each) => each?.url))];
+
+  // Step 2: Iterate through unique URLs and calculate pass count, fail count, and methods
+  const updatedTableData = uniqueUrls.map((url) => {
+    // Filter data for the current URL
+    const dataForUrl = apiTestJson.filter((entry) => entry.url === url);
+
+    // Calculate pass count, fail count, and methods for the current URL
+    const { passCount, failCount, methods } = dataForUrl.reduce(
+      (accumulator, currentEntry) => {
+        // Increment pass count if status is 'pass'
+        if (currentEntry.status === 'pass') {
+          accumulator.passCount++;
+        }
+        // Increment fail count if status is 'fail'
+        else if (currentEntry.status === 'fail') {
+          accumulator.failCount++;
+        }
+
+        // Add method to the methods array if not already present
+        if (!accumulator.methods.includes(currentEntry.api_method)) {
+          accumulator.methods.push(currentEntry.api_method);
+        }
+
+        return accumulator;
+      },
+      { passCount: 0, failCount: 0, methods: [] } // Initial values
+    );
+
+    return {
+      url,
+      passCount,
+      failCount,
+      methods
+    };
+  });
+
+  // Output the updated table data
+
   return (
     <Box>
       <TableContainer
@@ -186,8 +193,8 @@ export default function OrderTable() {
         >
           <OrderTableHead order={order} orderBy={orderBy} />
           <TableBody>
-            {stableSort(rows, getComparator(order, orderBy)).map((row, index) => {
-              const isItemSelected = isSelected(row.trackingNo);
+            {updatedTableData.map((row, index) => {
+              const isItemSelected = isSelected(index + 1);
               const labelId = `enhanced-table-checkbox-${index}`;
 
               return (
@@ -202,16 +209,19 @@ export default function OrderTable() {
                 >
                   <TableCell component="th" id={labelId} scope="row" align="left">
                     <Link color="secondary" component={RouterLink} to="">
-                      {row.trackingNo}
+                      {index + 1}
                     </Link>
                   </TableCell>
-                  <TableCell align="left">{row.name}</TableCell>
-                  <TableCell align="right">{row.fat}</TableCell>
-                  <TableCell align="left">
-                    <OrderStatus status={row.carbs} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <NumberFormat value={row.protein} displayType="text" thousandSeparator prefix="$" />
+                  <TableCell align="left">{row.url}</TableCell>
+                  <TableCell align="center">{row.passCount}</TableCell>
+                  <TableCell align="center">{row.failCount}</TableCell>
+                  <TableCell align="center">
+                    {row.methods?.map((method, i) => (
+                      <Typography component="span" key={method}>
+                        {method}
+                        {row?.methods?.length - 1 > i && ', '}
+                      </Typography>
+                    ))}
                   </TableCell>
                 </TableRow>
               );
