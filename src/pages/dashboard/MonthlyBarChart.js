@@ -1,79 +1,109 @@
-import { useEffect, useState } from 'react';
-
-// material-ui
-import { useTheme } from '@mui/material/styles';
-
-// third-party
+import { useState } from 'react';
+// import { useTheme } from '@mui/material/styles';
 import ReactApexChart from 'react-apexcharts';
+import apiTestJson from '../../../src/APITestJson.json';
 
-// chart options
-const barChartOptions = {
-  chart: {
-    type: 'bar',
-    height: 365,
-    toolbar: {
-      show: false
-    }
-  },
-  plotOptions: {
-    bar: {
-      columnWidth: '45%',
-      borderRadius: 4
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  xaxis: {
-    categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
-    axisBorder: {
+// Define methods array
+const methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'];
+
+// MonthlyBarChart component
+const MonthlyBarChart = () => {
+  // const theme = useTheme();
+  // const info = theme.palette.info.light;
+
+  // Count the occurrences of each method in the API data
+  const count = methods.map((method) => {
+    return apiTestJson?.filter((entry) => entry?.api_method === method)?.length ?? 0;
+  });
+
+  // Define colors for each bar based on labels
+  const colors = ['#ada557', '#16d930', '#4973a6', '#5749a6', '#d91616'];
+
+  // Initialize state for series data and options
+  const [series] = useState([{ name: 'COUNT', data: count }]);
+  // const [options, setOptions] = useState({
+  //   chart: {
+  //     type: 'bar',
+  //     height: 365,
+  //     toolbar: {
+  //       show: false
+  //     }
+  //   },
+  //   plotOptions: {
+  //     bar: {
+  //       columnWidth: '45%',
+  //       borderRadius: 4
+  //     }
+  //   },
+  //   dataLabels: {
+  //     enabled: false
+  //   },
+  //   xaxis: {
+  //     categories: methods,
+  //     axisBorder: {
+  //       show: false
+  //     },
+  //     axisTicks: {
+  //       show: false
+  //     }
+  //   },
+  //   yaxis: {
+  //     show: false
+  //   },
+  //   grid: {
+  //     show: false
+  //   }
+  // });
+  const options = {
+    chart: {
+      height: 350,
+      type: 'bar'
+    },
+    colors: colors,
+    plotOptions: {
+      bar: {
+        columnWidth: '45%',
+        distributed: true
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    legend: {
       show: false
     },
-    axisTicks: {
-      show: false
-    }
-  },
-  yaxis: {
-    show: false
-  },
-  grid: {
-    show: false
-  }
-};
-
-// ==============================|| MONTHLY BAR CHART ||============================== //
-
-const MonthlyBarChart = () => {
-  const theme = useTheme();
-
-  const { primary, secondary } = theme.palette.text;
-  const info = theme.palette.info.light;
-
-  const [series] = useState([
-    {
-      data: [80, 95, 70, 42, 65, 55, 78]
-    }
-  ]);
-
-  const [options, setOptions] = useState(barChartOptions);
-
-  useEffect(() => {
-    setOptions((prevState) => ({
-      ...prevState,
-      colors: [info],
-      xaxis: {
-        labels: {
-          style: {
-            colors: [secondary, secondary, secondary, secondary, secondary, secondary, secondary]
-          }
+    xaxis: {
+      categories: methods,
+      labels: {
+        style: {
+          colors: colors,
+          fontSize: '12px',
+          fontWeight: '700'
         }
-      },
-      tooltip: {
-        theme: 'light'
       }
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primary, info, secondary]);
+    },
+    tooltip: {
+      theme: 'light'
+    }
+  };
+  // Update options when component mounts
+  // useEffect(() => {
+  //   setOptions((prevOptions) => ({
+  //     ...prevOptions,
+  //     colors: colors, // Assign colors array to the chart options
+  //     xaxis: {
+  //       labels: {
+  //         style: {
+  //           colors: colors, // Assign colors array to the label style
+  //           fontWeight: '700'
+  //         }
+  //       }
+  //     },
+  //     tooltip: {
+  //       theme: 'light'
+  //     }
+  //   }));
+  // }, []);
 
   return (
     <div id="chart">
