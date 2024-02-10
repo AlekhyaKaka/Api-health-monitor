@@ -28,6 +28,7 @@ import SalesColumnChart from './SalesColumnChart';
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import apiTestJson from '../../../src/APITestJson.json';
+import CustomDatePicker from './CustomDatePicker';
 
 // assets
 // import { GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
@@ -78,6 +79,8 @@ const DashboardDefault = () => {
   const [method, setMethod] = useState('GET');
   const [apiUrl, setApiUrl] = useState('');
   const [slot, setSlot] = useState('week');
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const apisList = [...new Set(apiTestJson?.map((each) => each?.url))];
   // Calculate total unique users
   const uniqueUsers = [...new Set(apiTestJson.map((item) => item.user_id))];
@@ -90,13 +93,26 @@ const DashboardDefault = () => {
   const totalMemoryUtilization = apiTestJson.reduce((acc, item) => acc + item.memory_utilization, 0);
   const averageMemoryUtilization = totalMemoryUtilization / apiTestJson.length;
 
+  const failedRequests = apiTestJson.filter((item) => item.status === 'fail');
+
+  // Calculate failure rate
+  const failureRate = (failedRequests.length / apiTestJson.length) * 100;
+
+  // Calculate average CPU utilization
+  //const totalCpuUtilization = apiTestJson.reduce((acc, item) => acc + item.cpu_utilization, 0);
+  //const averageCpuUtilization = totalCpuUtilization / apiTestJson.length;
+  // Get the maximum CPU utilization value
+  //const maxCpuUtilizationValue = Math.max(...apiTestJson.map((item) => item.cpu_utilization));
+
+  //const averageCpuUtilizationPercentage = (averageCpuUtilization / maxCpuUtilizationValue) * 100;
+
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Average Memory Utilization" count={averageMemoryUtilization} />
+        <AnalyticEcommerce title="Average Memory Utilization" count={averageMemoryUtilization.toFixed(2)} />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <AnalyticEcommerce title="Total Users" count={totalUsers} />
@@ -105,7 +121,7 @@ const DashboardDefault = () => {
         <AnalyticEcommerce title="Total APIs" count={totalUrls} />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} />
+        <AnalyticEcommerce title="Total Failure Rate" count={`${failureRate.toFixed(2)}%`} percentage={27.4} />
       </Grid>
 
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
@@ -179,10 +195,30 @@ const DashboardDefault = () => {
           <Grid item>
             <Typography variant="h5">Analytics Report</Typography>
           </Grid>
-          <Grid item />
+          <Grid item>
+            <CustomDatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+          </Grid>
+          <Grid item xs={12} mt={2}>
+            <TextField
+              size="small"
+              select
+              value={apiUrl}
+              fullWidth
+              minWidth={200}
+              label="Select URL"
+              onChange={(e) => setApiUrl(e.target.value)}
+              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' }, minWidth: 110 }}
+            >
+              {apisList.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
         </Grid>
         <MainCard sx={{ mt: 2 }} content={false}>
-          <ReportAreaChart />
+          <ReportAreaChart selectedDate={selectedDate} apiUrl={apiUrl} />
         </MainCard>
       </Grid>
 

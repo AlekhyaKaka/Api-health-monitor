@@ -71,7 +71,7 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
       },
       yaxis: [
         {
-          seriesName: 'Number Of APIs',
+          seriesName: 'Number Of Executions',
           axisTicks: {
             show: true
           },
@@ -79,15 +79,15 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
             show: true
           },
           title: {
-            text: 'Number Of APIs'
+            text: 'Number Of Executions'
           }
         },
         {
-          seriesName: 'Number Of APIs',
+          seriesName: 'Number Of Executions',
           show: false
         },
         {
-          seriesName: 'Number Of APIs',
+          seriesName: 'Number Of Executions',
           show: false
         },
         {
@@ -121,7 +121,7 @@ const SalesColumnChart = ({ method, apiUrl = '' }) => {
   return options ? (
     <ReactApexChart
       series={[
-        { name: 'Number Of APIs', type: 'column', data: apiHitCountBasedOnCountry },
+        { name: 'Number Of Executions', type: 'column', data: apiHitCountBasedOnCountry },
         { name: 'Passed', type: 'column', data: apiPassedCountBasedOnCountry },
         { name: 'Failed', type: 'column', data: apiFailedCountBasedOnCountry },
         {
