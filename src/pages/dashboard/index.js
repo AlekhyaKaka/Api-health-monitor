@@ -79,22 +79,33 @@ const DashboardDefault = () => {
   const [apiUrl, setApiUrl] = useState('');
   const [slot, setSlot] = useState('week');
   const apisList = [...new Set(apiTestJson?.map((each) => each?.url))];
+  // Calculate total unique users
+  const uniqueUsers = [...new Set(apiTestJson.map((item) => item.user_id))];
+  const totalUsers = uniqueUsers.length;
+
+  const uniqueUrls = [...new Set(apiTestJson.map((item) => item.url))];
+  const totalUrls = uniqueUrls.length;
+
+  // Calculate average memory utilization
+  const totalMemoryUtilization = apiTestJson.reduce((acc, item) => acc + item.memory_utilization, 0);
+  const averageMemoryUtilization = totalMemoryUtilization / apiTestJson.length;
+
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Average Memory Utilization" count="4,42,236" percentage={59.3} extra="35,000" />
+        <AnalyticEcommerce title="Average Memory Utilization" count={averageMemoryUtilization} />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} extra="8,900" />
+        <AnalyticEcommerce title="Total Users" count={totalUsers} />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total APIs" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
+        <AnalyticEcommerce title="Total APIs" count={totalUrls} />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} isLoss color="warning" extra="$20,395" />
+        <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} />
       </Grid>
 
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />

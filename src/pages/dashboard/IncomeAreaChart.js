@@ -127,11 +127,11 @@ const IncomeAreaChart = ({ slot }) => {
   useEffect(() => {
     setSeries([
       {
-        name: 'Success',
+        name: 'Success(2xx)',
         data: slot === 'month' ? monthlySuccessCount : [31, 40, 28, 51, 42, 109, 100]
       },
       {
-        name: 'Failed',
+        name: 'Fail(1xx, 3xx, 4xx, 5xx)',
         data: slot === 'month' ? monthlyFailedCount : [11, 32, 45, 32, 34, 52, 41]
       }
     ]);
