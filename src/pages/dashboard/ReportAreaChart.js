@@ -12,7 +12,7 @@ const areaChartOptions = {
     height: 340,
     type: 'line',
     toolbar: {
-      show: false
+      show: true
     }
   },
   dataLabels: {
@@ -29,30 +29,31 @@ const areaChartOptions = {
     type: 'datetime',
     categories: [
       '2018-05-19T00:00:00.000Z',
-      '2018-06-19T00:00:00.000Z',
-      '2018-07-19T01:30:00.000Z',
-      '2018-08-19T02:30:00.000Z',
-      '2018-09-19T03:30:00.000Z',
-      '2018-10-19T04:30:00.000Z',
-      '2018-11-19T05:30:00.000Z',
-      '2018-12-19T06:30:00.000Z'
+      '2018-05-19T00:30:00.000Z',
+      '2018-05-19T01:00:00.000Z',
+      '2018-05-19T01:30:00.000Z',
+      '2018-05-19T02:00:00.000Z',
+      '2018-05-19T02:30:00.000Z',
+      '2018-05-19T03:00:00.000Z',
+      '2018-05-19T03:30:00.000Z',
+      '2018-05-19T04:00:00.000Z'
     ],
     labels: {
-      format: 'MMM'
+      format: 'hh:mm'
     },
     axisBorder: {
-      show: false
+      show: true
     },
     axisTicks: {
-      show: false
+      show: true
     }
   },
   yaxis: {
-    show: false
+    show: true
   },
   tooltip: {
     x: {
-      format: 'MM'
+      format: 'hh:mm'
     }
   }
 };
